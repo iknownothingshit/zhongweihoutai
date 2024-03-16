@@ -1,0 +1,44 @@
+.headerSearch {
+  display: inline-flex;
+  align-items: center;
+
+  .input {
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    background-color: #1c2424;
+    overflow: hidden;
+    border: 1px solid #5C5C5C;
+    border-radius: 15px;
+    transition: width 0.3s, margin-left 0.3s;
+
+    :global(.ant-select-selection) {
+      background: transparent;
+    }
+
+    input {
+      box-shadow: none !important;
+      border: none;
+      background: transparent;
+      color: #75879b;
+    }
+
+    input::placeholder {
+      color: #5C5C5C;
+    }
+
+    span[class="ant-select-clear"] {
+      display: none !important;
+    }
+
+    &.show {
+      opacity: 1;
+      width: 210px;
+      margin-left: 8px;
+    }
+  }
+}
+
+.popup {
+  width: auto !important;
+}
