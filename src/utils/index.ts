@@ -241,6 +241,7 @@ export const getRoleAccess = () => {
 
   return {
     canEdit: user.role === 'RESIDENT' || user.role === 'SYSTEM_ADMIN',
-    canDelete: user.role === 'SYSTEM_ADMIN'
+    canDelete: user.role === 'SYSTEM_ADMIN',
+    canEditAllMoneyModule: user.role === 'FINANCE' || user.role === 'SYSTEM_ADMIN',
   }
 }

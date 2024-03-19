@@ -6,7 +6,7 @@ declare namespace LoginAPI {
   type User = {
     id: number;
     nickname: string;
-    role: 'OFFICER' | 'RESIDENT' | 'SYSTEM_ADMIN';
+    role: 'OFFICER' | 'RESIDENT' | 'SYSTEM_ADMIN' | 'FINANCE';
   };
 
   type LoginParams = {

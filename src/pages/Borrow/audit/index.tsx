@@ -6,13 +6,14 @@ import { getLoanList, doAudit } from '@/api/borrow';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useAccess } from '@umijs/max';
 import dayjs from 'dayjs';
+import { getRoleAccess } from '@/utils/index';
 
 const statusMap = [
   { label: '已初审', value: 'FIRST_PASSED' },
   { label: '已拒绝', value: 'REJECTED' },
   { label: '已复审', value: 'SECOND_PASSED' },
   { label: '待审核', value: 'TO_BE_AUDIT' },
-  { label: '已打款', value: 'PAID' }
+  // { label: '已打款', value: 'PAID' }
 ]
 
 // 借资审核
@@ -22,7 +23,9 @@ const Audit: React.FC = () => {
 
   const { modal: { confirm }, message } = App.useApp();
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+
+  const { canEditAllMoneyModule } = getRoleAccess();
 
   // 审核
   const handleAudit = async (userLoanRecordId: number, userLoanRecordStatusEnum: string) => {
@@ -138,6 +141,8 @@ const Audit: React.FC = () => {
       key: 'option',
       align: 'center',
       render: (text, record: LoanAPI.LoanItem) => {
+
+        if (!canEditAllMoneyModule) return;
 
         if (record.status === 'REJECTED') return;
         let ops: any = [];

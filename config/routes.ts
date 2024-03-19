@@ -105,6 +105,12 @@
         name: 'config',
         component: './Borrow/config/index',
       },
+      {
+        // 薪资结算
+        path: '/loanMsg/salary',
+        name: 'salary',
+        component: './Borrow/salary/index',
+      },
     ],
   },
   {

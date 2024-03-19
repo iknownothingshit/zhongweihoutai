@@ -44,6 +44,7 @@ export default {
   'menu.loanMsg': '资金信息',
   'menu.loanMsg.loan': '借资管理',
   'menu.loanMsg.config': '借资配置',
+  'menu.loanMsg.salary': '薪资结算',
 
   'menu.system': '系统管理',
   'menu.system.user': '系统人员管理',
