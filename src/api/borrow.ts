@@ -21,11 +21,15 @@ export function doAudit(data: {
 }
 
 // 借资配置更改
-export function doConfig(data: {
-  entryDayLimit: number;
-  loanAmountMonthLimit: number;
-  loanIntervalDayLimit: number;
-}) {
+export function createConfig(data: Omit<LoanAPI.ConfigItem, 'id' | 'createTime'>) {
+  return request<IResponseData>('/admin/loanRule/insert', {
+    method: 'POST',
+    data
+  });
+}
+
+// 借资配置更改
+export function doConfig(data: LoanAPI.ConfigItem) {
   return request<IResponseData>('/admin/loanRule', {
     method: 'PUT',
     data
@@ -33,8 +37,43 @@ export function doConfig(data: {
 }
 
 // 获取借资配置
-export function getConfig() {
-  return request<LoanAPI.LoanConfigResult>('/admin/loanRule', {
+export function getConfig(data: {
+  factoryName?: string;
+  factoryId?: string;
+}) {
+  return request<LoanAPI.LoanConfigResult>(`/admin/loanRule?factoryName=${data.factoryName || ''}&factoryId=${data.factoryId || ''}`, {
     method: 'GET',
+  });
+}
+
+// 删除借资配置
+export function deleteConfig(id: number) {
+  return request<IResponseData>('/admin/loanRule', {
+    method: 'DELETE',
+    data: {
+      id
+    }
+  });
+}
+
+// 获取薪资结算列表
+export function getSalaryList(data: any) {
+  return request<LoanAPI.SalaryListResult>('/admin/salary/page', {
+    method: 'POST',
+    data
+  });
+}
+
+// 获取薪资发行模板
+export function getTemplate() {
+  return request<LoanAPI.LoanConfigResult>('/admin/salary/template', {
+    method: 'GET',
+  });
+}
+
+// 上传模板的文件名到后端
+export function sendTemplateName(name: string) {
+  return request<IResponseData>(`/admin/salary/processSalaryRecord?fileKey=${name}`, {
+    method: 'POST',
   });
 }

@@ -2,7 +2,7 @@ import type { ActionType, ParamsType, ProColumns } from '@ant-design/pro-compone
 import { ProTable } from '@ant-design/pro-components';
 import { Button, App } from 'antd';
 import { useRef, useState } from 'react';
-import { getLoanList } from '@/api/borrow';
+import { getSalaryList } from '@/api/borrow';
 import { useAccess } from '@umijs/max';
 import dayjs from 'dayjs';
 import UploadCom from './components/Upload';
@@ -10,6 +10,7 @@ import { getRoleAccess } from '@/utils/index';
 
 // 薪资结算
 const Salary: React.FC = () => {
+
   const access = useAccess();
   const actionRef = useRef<ActionType>();
 
@@ -25,7 +26,7 @@ const Salary: React.FC = () => {
 
   }
 
-  const columns: ProColumns<LoanAPI.LoanItem>[] = [
+  const columns: ProColumns<LoanAPI.SalaryItem>[] = [
     {
       title: '序号',
       dataIndex: 'index',
@@ -34,52 +35,63 @@ const Salary: React.FC = () => {
     },
     {
       title: '账号',
-      dataIndex: 'userId',
+      dataIndex: 'bankNumber',
       align: 'center',
       copyable: true
     },
     {
       title: '户名',
-      dataIndex: 'nickname',
+      dataIndex: 'realName',
       align: 'center',
       copyable: true,
     },
     {
       title: '金额',
-      dataIndex: 'bankNumber',
+      dataIndex: 'amount',
       align: 'center',
       copyable: true,
       hideInSearch: true
     },
     {
+      title: '用途',
+      dataIndex: 'moneyUsage',
+      align: 'center',
+      hideInSearch: true
+    },
+    {
       title: '附言',
-      dataIndex: 'phone',
+      dataIndex: 'postscript',
       align: 'center',
       copyable: true,
       hideInSearch: true
     },
     {
       title: '创建时间',
-      dataIndex: 'firstAuditTime',
+      dataIndex: 'createTime',
       align: 'center',
       valueType: 'dateTimeRange',
       hideInTable: true
     },
     {
       title: '创建时间',
-      dataIndex: 'firstAuditTime',
+      dataIndex: 'createTime',
       align: 'center',
       hideInSearch: true,
-      render: (text, record: LoanAPI.LoanItem) => record.firstAuditTime ? dayjs(record.firstAuditTime).format('YYYY-MM-DD HH:mm:ss') : '-'
+      render: (text, record: LoanAPI.SalaryItem) => record.createTime ? dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss') : '-'
     },
     {
       title: '是否发布',
-      dataIndex: 'secondAuditTime',
+      dataIndex: 'isRecharge',
       align: 'center',
       valueType: 'select',
-      valueEnum: {
-        0: '未发布',
-        1: '已发布'
+      fieldProps: {
+        options: [
+          { label: '未发布', value: false },
+          { label: '已发布', value: true },
+        ]
+      },
+      render: (text, record: LoanAPI.SalaryItem) => {
+        return record.isRecharge ? '已发布' : '未发布';
       }
     },
   ];
@@ -91,9 +103,18 @@ const Salary: React.FC = () => {
       current?: number | undefined;
     } = {},
   ) => {
-    const { code, data } = await getLoanList(
+
+    const { createTime } = params;
+    const par: any = {};
+    if (createTime) {
+      par.startTime = dayjs(createTime[0]).unix();
+      par.endTime = dayjs(createTime[1]).unix();
+    }
+
+    const { code, data } = await getSalaryList(
       {
         ...params,
+        ...par,
         pageNum: params.current,
         pageSize: params.pageSize,
       },
@@ -115,10 +136,10 @@ const Salary: React.FC = () => {
 
   return (
     <div>
-      <ProTable<LoanAPI.LoanItem>
+      <ProTable<LoanAPI.SalaryItem>
         actionRef={actionRef}
         columns={columns}
-        rowKey="userLoanRecordId"
+        rowKey="idNumber"
         request={getTableData}
         pagination={{
           showQuickJumper: true,
@@ -129,7 +150,7 @@ const Salary: React.FC = () => {
         }}
         revalidateOnFocus={false}
         toolBarRender={() => [
-          canEditAllMoneyModule && <Button type='primary' onClick={publishAll} key="publish" style={{ marginRight: '20px' }}>一键发布</Button>,
+          // canEditAllMoneyModule && <Button type='primary' onClick={publishAll} key="publish" style={{ marginRight: '20px' }}>一键发布</Button>,
           canEditAllMoneyModule && <Button type='primary' onClick={() => setUploadVis(true)} key="upload">导入数据</Button>,
         ]}
       />

@@ -111,6 +111,12 @@
         name: 'salary',
         component: './Borrow/salary/index',
       },
+      // {
+      //   // 钱包流水
+      //   path: '/loanMsg/wallet',
+      //   name: 'wallet',
+      //   component: './Borrow/wallet/index',
+      // },
     ],
   },
   {

@@ -5,7 +5,6 @@ import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { useState } from 'react';
 import styles from './index.module.less';
 import { UploadOutlined } from '@ant-design/icons';
-import { getTemplate, sendTemplateName } from '@/api/borrow';
 
 type Props = {
     visible: boolean;
@@ -21,8 +20,7 @@ const UploadCom: React.FC<Props> = ({
     const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
 
-    // 获取上传oss后的文件名
-    const handleChange: UploadProps['onChange'] = async (info: UploadChangeParam<UploadFile>) => {
+    const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
         setLoading(false);
         if (info.file.status === 'uploading') {
             setLoading(true);
@@ -30,41 +28,16 @@ const UploadCom: React.FC<Props> = ({
         }
 
         if (info.file.status === 'done') {
-            const { code, data, message: msg } = info.file.response;
-            if (code !== 200) {
-                message.error(msg || '上传失败，请重试');
-                setLoading(false);
-                return;
-            }
-
-            const { code: sCode } = await sendTemplateName(data?.split('com/')[1]);
+            const { code, data, message } = info.file.response;
             setLoading(false);
-
-            if (sCode !== 200) {
-                message.error('上传失败，请重试');
+            if (code !== 200) {
+                message.error(message || '上传失败，请重试');
                 return;
             }
 
             message.success('上传成功');
         }
     };
-
-    // 下载模板
-    const downloadTemplate = async () => {
-        const { data, code } = await getTemplate();
-        if (code !== 200) return;
-
-        try {
-            const elink = document.createElement('a');
-            elink.style.display = 'none';
-            elink.href = 'https://zwhr-1322923821.cos.ap-guangzhou.myqcloud.com/' + data;
-            document.body.appendChild(elink);
-            elink.click();
-            document.body.removeChild(elink);
-        } catch (err) {
-            window.alert('下载失败');
-        }
-    }
 
     return <Modal
         open={visible}
@@ -91,7 +64,7 @@ const UploadCom: React.FC<Props> = ({
                 </div>
             </Upload>
 
-            <a onClick={() => downloadTemplate()}>
+            <a href="">
                 点击下载模板
             </a>
         </Space>

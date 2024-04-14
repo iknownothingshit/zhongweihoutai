@@ -1,45 +1,34 @@
-import { Button, Space, Input, App, Card, Modal } from 'antd';
+import { Button, Space, App, Card, Input } from 'antd';
 import { useEffect, useState, } from 'react';
-import { doConfig, getConfig } from '@/api/borrow';
+import { doConfig, getConfig, createConfig } from '@/api/borrow';
 import { useAccess } from '@umijs/max';
 import styles from './index.module.less';
 import { getRoleAccess } from '@/utils/index';
+import Edit from './Edit';
+import Create from './Create';
 
 // 借资配置
 const Config: React.FC = () => {
 
-  const { message, modal: { confirm } } = App.useApp();
+  const { message } = App.useApp();
 
+  const [createVis, setCreateVis] = useState(false);
   const [eidtVis, setEidtVis] = useState(false);
-
-  const [entryDayLimit, setEntryDayLimit] = useState(0);
-  const [loanAmountMonthLimit, setLoanAmountMonthLimit] = useState(0);
-  const [loanIntervalDayLimit, setLoanIntervalDayLimit] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [curConfig, setCurConfig] = useState<LoanAPI.ConfigItem | null>(null);
+  const [configList, setConfigList] = useState<LoanAPI.ConfigItem[]>([]); // 配置列表
 
-  const [configList, setConfigList] = useState([1, 2, 3, 4, 5]); // 配置列表
+  const [factoryName, setFactoryName] = useState('');
+  const [factoryId, setFactoryId] = useState('');
 
   const { canEditAllMoneyModule } = getRoleAccess();
 
-  // 修改配置值
-  const handleChange = (key: string, val: number) => {
-    switch (key) {
-      case '1': setEntryDayLimit(val || 0); break;
-      case '2': setLoanAmountMonthLimit(val || 0); break;
-      case '3': setLoanIntervalDayLimit(val || 0); break;
-    }
-  }
-
 
   // 保存配置
-  const save = async () => {
+  const save = async (data: LoanAPI.ConfigItem) => {
     if (loading) return;
     setLoading(true);
-    const { code } = await doConfig({
-      entryDayLimit,
-      loanAmountMonthLimit,
-      loanIntervalDayLimit
-    })
+    const { code } = await doConfig(data)
     setLoading(false);
 
     if (code !== 200) {
@@ -47,34 +36,48 @@ const Config: React.FC = () => {
       return;
     }
 
-    message.success('修改成功')
+    message.success('修改成功');
+    afterEdit();
+  }
+
+  // 编辑完成后刷新
+  const afterEdit = () => {
+    init();
+    setCreateVis(false);
+    setEidtVis(false);
+    setCurConfig(null);
   }
 
   // 获取列表数据
-  const init = async () => {
-    const { code, data } = await getConfig();
+  const init = async (fName?: string, fId?: string) => {
+    const parms: any = {};
+    if (fName) parms.factoryName = fName;
+    if (fId) parms.factoryId = fId;
+
+    const { code, data } = await getConfig(parms);
 
     if (code !== 200 || !data) return;
 
-    const { entryDayLimit: edl, loanAmountMonthLimit: laml, loanIntervalDayLimit: lidl } = data;
-    setEntryDayLimit(edl);
-    setLoanAmountMonthLimit(laml);
-    setLoanIntervalDayLimit(lidl);
-
+    const { records } = data;
+    setConfigList(records);
   }
 
   // 打开编辑
-  const openEidt = () => {
+  const openEidt = (config: LoanAPI.ConfigItem) => {
+    setCurConfig(config);
     setEidtVis(true);
   }
 
-  // 删除配置
-  const handleDelete = async () => {
-    confirm({
-      title: '确认删除此配置吗？',
-      okText: '确认',
-      cancelText: '取消'
-    })
+  // 查询
+  const search = () => {
+    init(factoryName, factoryId);
+  }
+
+  // 重置
+  const reset = () => {
+    setFactoryId('');
+    setFactoryName('');
+    init();
   }
 
   useEffect(() => {
@@ -84,54 +87,44 @@ const Config: React.FC = () => {
   return (
     <Space direction='vertical'>
 
+      <Space style={{ marginBottom: '30px', }}>
+        <Input placeholder='输入工厂名..' value={factoryName} onChange={(e) => setFactoryName(e.target.value)} />
+        <Input placeholder='输入工厂Id..' value={factoryId} onChange={(e) => setFactoryId(e.target.value)} />
+
+        <Space>
+          <Button type='primary' onClick={search}>查询</Button>
+          <Button type='default' onClick={reset}>重置</Button>
+          <Button type='primary' onClick={() => setCreateVis(true)}>创建规则</Button>
+        </Space>
+
+      </Space>
+
       <div className={styles.cards}>
         {
           configList.map(c => {
             return (
               <Card
-                title="工厂名字"
+                key={c.id}
+                title={c.factoryName}
                 bordered={false}
                 hoverable
                 className={styles.cardItem}
-                extra={canEditAllMoneyModule && <Button type='primary' onClick={openEidt}>编辑</Button>}>
-                <p>入职{entryDayLimit}天可发起借资</p>
-                <p>每隔{loanAmountMonthLimit}天可发起审批</p>
-                <p>每月可借金额上限{loanIntervalDayLimit}</p>
+                extra={canEditAllMoneyModule && <Button type='primary' onClick={() => openEidt(c)}>编辑</Button>}>
+                <p>入职 {c.entryDayLimit} 天可发起借资</p>
+                <p>每隔 {c.loanIntervalDayLimit} 天可发起审批</p>
+                <p>每月可借金额上限 {c.loanAmountMonthLimit} </p>
               </Card>
             )
           })
         }
       </div>
 
-      <Modal
-        open={eidtVis}
-        onCancel={() => setEidtVis(false)}
-        title="编辑"
-        confirmLoading={loading}
-        footer={<Space style={{ paddingTop: '10px' }}>
-          <Button type='primary' loading={loading} style={{ marginRight: '10px' }} onClick={save}>修改并保存</Button>
-          <Button loading={loading} onClick={handleDelete}>删除</Button>
-        </Space>}
-      >
-        <Space wrap direction='vertical'>
-          <Space>
-            入职
-            <Input placeholder='输入天数' type='number' suffix='天' value={entryDayLimit} onChange={e => handleChange('1', +e.target.value)} />
-            可发起借资
-          </Space>
+      <Edit visible={eidtVis} data={curConfig} onCancel={() => {
+        setEidtVis(false);
+        setCurConfig(null);
+      }} onOk={save} loading={loading} afterEdit={afterEdit} />
 
-          <Space>
-            每隔
-            <Input placeholder='输入天数' type='number' suffix='天' value={loanAmountMonthLimit} onChange={e => handleChange('2', +e.target.value)} />
-            可发起审批
-          </Space>
-
-          <Space>
-            每月可借金额上限
-            <Input placeholder='输入金额' type='number' value={loanIntervalDayLimit} onChange={e => handleChange('3', +e.target.value)} />
-          </Space>
-        </Space>
-      </Modal>
+      <Create visible={createVis} onCancel={() => setCreateVis(false)} onOk={afterEdit} />
 
     </Space>
   )

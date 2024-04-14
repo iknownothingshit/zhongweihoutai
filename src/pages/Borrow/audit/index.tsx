@@ -13,7 +13,7 @@ const statusMap = [
   { label: '已拒绝', value: 'REJECTED' },
   { label: '已复审', value: 'SECOND_PASSED' },
   { label: '待审核', value: 'TO_BE_AUDIT' },
-  // { label: '已打款', value: 'PAID' }
+  { label: '已打款', value: 'PAID' }
 ]
 
 // 借资审核

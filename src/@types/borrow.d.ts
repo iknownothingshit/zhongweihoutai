@@ -22,9 +22,34 @@ declare namespace LoanAPI {
     total: number;
   }>;
 
-  type LoanConfigResult = IResponseData<{
+  type ConfigItem = {
     entryDayLimit: number;
     loanAmountMonthLimit: number;
     loanIntervalDayLimit: number;
+    createTime: string;
+    factoryId: number;
+    factoryName: string;
+    id: number;
+  }
+
+  type LoanConfigResult = IResponseData<{
+    records: ConfigItem[];
+    total: number;
+  }>;
+
+  type SalaryItem = {
+    idNumber: string;
+    amount: number;
+    bankNumber: string;
+    createTime: string;
+    postscript: string;
+    realName: string;
+    moneyUsage: string;
+    isRecharge: boolean;
+  }
+
+  type SalaryListResult = IResponseData<{
+    records: SalaryItem[];
+    total: number;
   }>;
 }

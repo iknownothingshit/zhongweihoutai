@@ -89,11 +89,13 @@ const errorHandler = (error: any) => {
   msg.error(codeMaps[error.status] || errorMessage);
 };
 
-// http://183.11.230.138:9999
+// 114.132.160.209:18081
 // http://114.132.160.209
+//https://593a-61-141-65-45.ngrok-free.app/
+// 'https://enzezhonghr.com/api/'
 
 export const requestConfig: RequestConfig = {
-  baseURL: 'https://enzezhonghr.com/api/',
+  baseURL: 'http://114.132.160.209:18081',
   timeout: requestTimeOut,
   errorConfig: {
     errorHandler: errorHandler,
