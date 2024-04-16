@@ -13,5 +13,8 @@
   },
   "[less]": {
     "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "[nginx]": {
+    "editor.defaultFormatter": "raynigon.nginx-formatter"
   }
 }
