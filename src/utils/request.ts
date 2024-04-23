@@ -95,7 +95,7 @@ const errorHandler = (error: any) => {
 // 'https://enzezhonghr.com/api/'
 
 export const requestConfig: RequestConfig = {
-  baseURL: 'http://test.enzezhonghr.com/api/',
+  baseURL: 'https://enzezhonghr.com/api/',
   timeout: requestTimeOut,
   errorConfig: {
     errorHandler: errorHandler,
