@@ -1,12 +1,13 @@
 import type { ActionType, ParamsType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Select, App, Popconfirm, Tooltip } from 'antd';
+import { Select, App, Popconfirm, Tooltip, Button } from 'antd';
 import { useRef, useState, useMemo } from 'react';
-import { getLoanList, doAudit } from '@/api/borrow';
+import { getLoanList, doAudit, exportList } from '@/api/borrow';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useAccess } from '@umijs/max';
 import dayjs from 'dayjs';
 import { getRoleAccess } from '@/utils/index';
+import { downloadFile } from '@/utils/index';
 
 const statusMap = [
   { label: '已初审', value: 'FIRST_PASSED' },
@@ -24,6 +25,7 @@ const Audit: React.FC = () => {
   const { modal: { confirm }, message } = App.useApp();
 
   const [loading, setLoading] = useState(false);
+  const [curParams, setCurParams] = useState<any>();
 
   const { canEditAllMoneyModule } = getRoleAccess();
 
@@ -52,6 +54,18 @@ const Audit: React.FC = () => {
   };
 
   const columns: ProColumns<LoanAPI.LoanItem>[] = [
+    {
+      dataIndex: 'firstAuditTime',
+      title: '初审时间',
+      valueType: 'dateRange',
+      hideInTable: true,
+    },
+    {
+      dataIndex: 'secondAuditTime',
+      title: '复审时间',
+      valueType: 'dateRange',
+      hideInTable: true,
+    },
     {
       title: '用户id',
       dataIndex: 'userId',
@@ -144,7 +158,7 @@ const Audit: React.FC = () => {
 
         if (!canEditAllMoneyModule) return;
 
-        if (record.status === 'REJECTED') return;
+        if (record.status === 'REJECTED' || record.status === 'PAID') return;
         let ops: any = [];
 
         switch (record.status) {
@@ -170,6 +184,12 @@ const Audit: React.FC = () => {
     },
   ];
 
+  // 导出
+  const doExport = async () => {
+    const res: any = await exportList(curParams);
+    downloadFile(res, 'user_loan_list.xlsx');
+  }
+
   // 查询列表
   const getTableData = async (
     params: ParamsType & {
@@ -177,13 +197,28 @@ const Audit: React.FC = () => {
       current?: number | undefined;
     } = {},
   ) => {
-    const { code, data } = await getLoanList(
-      {
-        ...params,
-        pageNum: params.current,
-        pageSize: params.pageSize,
-      },
-    );
+
+    const { firstAuditTime, secondAuditTime } = params;
+    let par: any = {};
+
+    if (secondAuditTime) {
+      par.secondAuditTimeStart = dayjs(secondAuditTime[0]).unix()
+      par.secondAuditTimeEnd = dayjs(secondAuditTime[1]).unix()
+    }
+
+    if (firstAuditTime) {
+      par.firstAuditTimeStart = dayjs(firstAuditTime[0]).unix()
+      par.firstAuditTimeEnd = dayjs(firstAuditTime[1]).unix()
+    }
+
+    const finalParams = {
+      ...params,
+      ...par,
+      pageNum: params.current,
+      pageSize: params.pageSize,
+    }
+    setCurParams(finalParams);
+    const { code, data } = await getLoanList(finalParams);
     if (code === 200) {
       const { total, records } = data;
       return {
@@ -214,7 +249,9 @@ const Audit: React.FC = () => {
           defaultCollapsed: false,
         }}
         revalidateOnFocus={false}
-        toolBarRender={false}
+        toolBarRender={() => [
+          <Button type='primary' key='export' onClick={doExport}>导出</Button>
+        ]}
       />
     </div>
   );

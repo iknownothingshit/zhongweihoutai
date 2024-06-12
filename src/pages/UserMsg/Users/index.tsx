@@ -98,6 +98,12 @@ const Users: React.FC = () => {
       hideInSearch: true
     },
     {
+      title: '真实姓名',
+      dataIndex: 'realname',
+      align: 'center',
+      hideInTable: true
+    },
+    {
       title: '证书',
       dataIndex: 'certificates',
       align: 'center',

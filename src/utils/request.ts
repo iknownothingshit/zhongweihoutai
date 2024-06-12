@@ -91,11 +91,14 @@ const errorHandler = (error: any) => {
 
 // 114.132.160.209:18081
 // http://114.132.160.209
-//https://593a-61-141-65-45.ngrok-free.app/
+// http://test.enzezhonghr.com/api
 // 'https://enzezhonghr.com/api/'
 
+const testURL = 'http://test.enzezhonghr.com/api'
+const url = 'https://enzezhonghr.com/api/'
+
 export const requestConfig: RequestConfig = {
-  baseURL: 'https://enzezhonghr.com/api/',
+  baseURL: testURL,
   timeout: requestTimeOut,
   errorConfig: {
     errorHandler: errorHandler,

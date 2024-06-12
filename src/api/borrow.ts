@@ -20,6 +20,15 @@ export function doAudit(data: {
   });
 }
 
+// 导出当前借资列表
+export function exportList(data: any) {
+  return request<IResponseData>('/admin/loanRecord/export', {
+    method: 'POST',
+    data,
+    responseType: 'blob'
+  });
+}
+
 // 借资配置更改
 export function createConfig(data: Omit<LoanAPI.ConfigItem, 'id' | 'createTime'>) {
   return request<IResponseData>('/admin/loanRule/insert', {
