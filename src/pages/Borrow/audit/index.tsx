@@ -204,11 +204,19 @@ const Audit: React.FC = () => {
     if (secondAuditTime) {
       par.secondAuditTimeStart = dayjs(secondAuditTime[0]).unix()
       par.secondAuditTimeEnd = dayjs(secondAuditTime[1]).unix()
+      if (par.secondAuditTimeStart === par.secondAuditTimeEnd) {
+        // 同一天
+        par.secondAuditTimeEnd = dayjs(secondAuditTime[1]).endOf('D').unix()
+      }
     }
 
     if (firstAuditTime) {
       par.firstAuditTimeStart = dayjs(firstAuditTime[0]).unix()
       par.firstAuditTimeEnd = dayjs(firstAuditTime[1]).unix()
+      if (par.firstAuditTimeStart === par.firstAuditTimeEnd) {
+        // 同一天
+        par.firstAuditTimeEnd = dayjs(firstAuditTime[1]).endOf('D').unix()
+      }
     }
 
     const finalParams = {

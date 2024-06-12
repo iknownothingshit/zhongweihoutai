@@ -97,8 +97,10 @@ const errorHandler = (error: any) => {
 const testURL = 'http://test.enzezhonghr.com/api'
 const url = 'https://enzezhonghr.com/api/'
 
+console.log(process.env.REACT_APP_ENV);
+
 export const requestConfig: RequestConfig = {
-  baseURL: testURL,
+  baseURL: process.env.REACT_APP_ENV === 'dev' ? testURL : url,
   timeout: requestTimeOut,
   errorConfig: {
     errorHandler: errorHandler,
